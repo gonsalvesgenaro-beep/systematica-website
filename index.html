@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Systematica — Engineering Extraordinary Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --lime: #C8F000;
+    --black: #0A0A0A;
+    --off-white: #F0EDE8;
+    --mid: #1A1A1A;
+    --gray: #888;
+    --light-gray: #D0CEC9;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--off-white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--lime);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 40px; height: 40px;
+    border: 1px solid var(--lime);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+    opacity: 0.5;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 60px;
+    mix-blend-mode: normal;
+    transition: background 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(12px);
+    padding: 18px 60px;
+    border-bottom: 1px solid rgba(200,240,0,0.15);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 26px;
+    letter-spacing: 0.12em;
+    color: var(--off-white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--lime); }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--gray); text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--lime); }
+  .nav-cta {
+    background: var(--lime); color: var(--black);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 12px 28px; text-decoration: none;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .nav-cta:hover { background: var(--off-white); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-left {
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 60px 80px;
+    position: relative; z-index: 2;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--lime); margin-bottom: 40px;
+    opacity: 0; animation: fadeUp 0.8s 0.3s forwards;
+  }
+  .hero-badge::before {
+    content: ''; width: 30px; height: 1px; background: var(--lime);
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(80px, 9vw, 140px);
+    line-height: 0.92;
+    letter-spacing: 0.03em;
+    color: var(--off-white);
+    opacity: 0; animation: fadeUp 0.9s 0.5s forwards;
+  }
+  .hero-title em {
+    font-style: normal; color: var(--lime);
+    font-family: 'DM Serif Display', serif;
+  }
+  .hero-sub {
+    font-size: 14px; line-height: 1.7; color: var(--gray);
+    max-width: 380px; margin-top: 32px;
+    opacity: 0; animation: fadeUp 0.9s 0.7s forwards;
+  }
+  .hero-actions {
+    display: flex; align-items: center; gap: 32px;
+    margin-top: 48px;
+    opacity: 0; animation: fadeUp 0.9s 0.9s forwards;
+  }
+  .btn-primary {
+    background: var(--lime); color: var(--black);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 18px 40px; text-decoration: none; display: inline-block;
+    transition: transform 0.3s, background 0.3s;
+  }
+  .btn-primary:hover { transform: translateY(-3px); background: #d6ff00; }
+  .btn-ghost {
+    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--off-white); text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+    transition: color 0.3s;
+  }
+  .btn-ghost::after { content: '↗'; font-size: 16px; }
+  .btn-ghost:hover { color: var(--lime); }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    opacity: 0; animation: fadeIn 1.2s 0.4s forwards;
+  }
+  .hero-grid-pattern {
+    position: absolute; inset: 0;
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(200,240,0,0.08) 60px),
+      repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(200,240,0,0.08) 60px);
+    background-size: 60px 60px;
+  }
+  .hero-stripes {
+    position: absolute; inset: 0;
+    display: flex; gap: 12px; padding: 80px 40px;
+    opacity: 0.6;
+  }
+  .hero-stripe {
+    flex: 1; background: var(--lime);
+    transform: scaleY(0); transform-origin: bottom;
+    animation: stripeUp 1s cubic-bezier(0.77,0,0.18,1) forwards;
+  }
+  .hero-stripe:nth-child(1){ animation-delay: 0.6s; }
+  .hero-stripe:nth-child(2){ animation-delay: 0.7s; }
+  .hero-stripe:nth-child(3){ animation-delay: 0.75s; }
+  .hero-stripe:nth-child(4){ animation-delay: 0.8s; }
+  .hero-stripe:nth-child(5){ animation-delay: 0.85s; }
+  .hero-stripe:nth-child(6){ animation-delay: 0.9s; }
+  .hero-stripe:nth-child(7){ animation-delay: 0.95s; height: 60%; align-self: flex-end; }
+
+  .hero-stat-box {
+    position: absolute; bottom: 60px; left: 40px;
+    background: var(--black); border: 1px solid rgba(200,240,0,0.3);
+    padding: 24px 32px;
+    opacity: 0; animation: fadeUp 0.8s 1.2s forwards;
+  }
+  .hero-stat-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 52px; color: var(--lime); line-height: 1;
+  }
+  .hero-stat-label {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gray); margin-top: 4px;
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gray);
+    opacity: 0; animation: fadeIn 1s 1.5s forwards;
+    z-index: 10;
+  }
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(var(--lime), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+
+  /* MARQUEE */
+  .marquee-section {
+    background: var(--lime); overflow: hidden;
+    padding: 16px 0;
+    border-top: 1px solid var(--black); border-bottom: 1px solid var(--black);
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: marquee 20s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px; letter-spacing: 0.1em; color: var(--black);
+    padding: 0 48px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .marquee-dot { width: 6px; height: 6px; background: var(--black); border-radius: 50%; }
+
+  /* ABOUT */
+  .section { padding: 140px 60px; }
+  .section-label {
+    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--lime); margin-bottom: 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::before { content: ''; width: 40px; height: 1px; background: var(--lime); }
+
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 120px; align-items: center;
+  }
+  .about-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(50px, 6vw, 90px);
+    line-height: 0.95; color: var(--off-white);
+    margin-bottom: 40px;
+  }
+  .about-title em { color: var(--lime); font-style: italic; font-family: 'DM Serif Display', serif; }
+  .about-text {
+    font-size: 15px; line-height: 1.85; color: var(--gray);
+    margin-bottom: 24px;
+  }
+  .values-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    margin-top: 60px;
+  }
+  .value-card {
+    background: var(--mid); padding: 40px 32px;
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.3s, border-color 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .value-card::before {
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 0; background: var(--lime);
+    transition: height 0.4s;
+  }
+  .value-card:hover::before { height: 100%; }
+  .value-card:hover { background: #1f1f1f; border-color: rgba(200,240,0,0.15); }
+  .value-icon {
+    font-size: 24px; margin-bottom: 16px;
+  }
+  .value-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px; letter-spacing: 0.08em; color: var(--off-white);
+    margin-bottom: 12px;
+  }
+  .value-desc { font-size: 13px; line-height: 1.7; color: var(--gray); }
+
+  /* SERVICES */
+  .services-section { background: var(--off-white); padding: 140px 60px; }
+  .services-section .section-label { color: #1a1a1a; }
+  .services-section .section-label::before { background: #1a1a1a; }
+  .services-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 80px;
+  }
+  .services-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(50px, 6vw, 90px);
+    line-height: 0.95; color: var(--black);
+    max-width: 500px;
+  }
+  .services-intro {
+    max-width: 340px; font-size: 14px; line-height: 1.8;
+    color: #555; text-align: right;
+  }
+  .services-list { display: flex; flex-direction: column; }
+  .service-row {
+    display: flex; align-items: center;
+    padding: 32px 0;
+    border-top: 1px solid rgba(0,0,0,0.12);
+    cursor: none;
+    transition: padding-left 0.4s;
+    position: relative; overflow: hidden;
+  }
+  .service-row::after {
+    content: ''; position: absolute; inset: 0;
+    background: var(--black); transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.77,0,0.18,1);
+    z-index: 0;
+  }
+  .service-row:hover::after { transform: translateX(0); }
+  .service-row:hover .service-num { color: var(--lime); }
+  .service-row:hover .service-name { color: var(--off-white); }
+  .service-row:hover .service-desc { color: var(--gray); }
+  .service-row:hover .service-arrow { color: var(--lime); transform: rotate(0deg); }
+  .service-row:last-child { border-bottom: 1px solid rgba(0,0,0,0.12); }
+  .service-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 14px; color: #999; letter-spacing: 0.1em;
+    width: 60px; flex-shrink: 0; position: relative; z-index: 1;
+    transition: color 0.4s;
+  }
+  .service-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(28px, 3.5vw, 46px); letter-spacing: 0.05em; color: var(--black);
+    flex: 1; position: relative; z-index: 1;
+    transition: color 0.4s;
+  }
+  .service-desc {
+    font-size: 13px; color: #777; max-width: 300px;
+    position: relative; z-index: 1;
+    transition: color 0.4s;
+  }
+  .service-arrow {
+    font-size: 28px; color: #ccc;
+    transform: rotate(45deg);
+    transition: transform 0.3s, color 0.4s;
+    position: relative; z-index: 1; margin-left: 40px;
+  }
+
+  /* MARKETS */
+  .markets-section { padding: 140px 60px; background: var(--black); }
+  .markets-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    margin-top: 80px;
+  }
+  .market-card {
+    background: var(--mid); padding: 48px 40px;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative; overflow: hidden;
+    transition: background 0.3s;
+  }
+  .market-card::before {
+    content: attr(data-num);
+    font-family: 'Bebas Neue', cursive;
+    font-size: 100px; color: rgba(200,240,0,0.04);
+    position: absolute; top: -10px; right: 20px;
+    line-height: 1; pointer-events: none;
+    transition: color 0.4s;
+  }
+  .market-card:hover { background: #1d1d1d; }
+  .market-card:hover::before { color: rgba(200,240,0,0.08); }
+  .market-icon-wrap {
+    width: 48px; height: 48px;
+    border: 1px solid rgba(200,240,0,0.3);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px; font-size: 20px;
+  }
+  .market-name {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 24px; letter-spacing: 0.08em; color: var(--off-white);
+    margin-bottom: 14px;
+  }
+  .market-desc { font-size: 13px; line-height: 1.7; color: var(--gray); }
+
+  /* TESTIMONIALS */
+  .testi-section { background: var(--mid); padding: 140px 60px; }
+  .testi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 80px; }
+  .testi-card {
+    background: var(--black); padding: 56px 48px;
+    border: 1px solid rgba(255,255,255,0.04);
+    position: relative;
+  }
+  .testi-quote {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(20px, 2.5vw, 28px);
+    line-height: 1.4; color: var(--off-white);
+    margin-bottom: 32px;
+    font-style: italic;
+  }
+  .testi-client {
+    font-size: 11px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--lime);
+  }
+  .testi-accent {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 140px; color: rgba(200,240,0,0.06);
+    position: absolute; top: 10px; right: 30px; line-height: 1;
+    pointer-events: none;
+  }
+
+  /* LEAD FORM */
+  .form-section {
+    background: var(--lime); padding: 140px 60px;
+  }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+  .form-left .section-label { color: var(--black); }
+  .form-left .section-label::before { background: var(--black); }
+  .form-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(50px, 6vw, 90px);
+    line-height: 0.92; color: var(--black);
+    margin-bottom: 32px;
+  }
+  .form-subtitle { font-size: 15px; color: rgba(0,0,0,0.6); line-height: 1.8; }
+  .contact-info { margin-top: 48px; display: flex; flex-direction: column; gap: 20px; }
+  .contact-item {
+    display: flex; align-items: flex-start; gap: 16px;
+    font-size: 14px; color: rgba(0,0,0,0.7);
+  }
+  .contact-item strong {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--black); display: block; margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .form-right { }
+  .form-box {
+    background: var(--black); padding: 56px 48px;
+  }
+  .form-row { margin-bottom: 24px; }
+  .form-row label {
+    display: block; font-size: 10px; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--gray);
+    margin-bottom: 10px;
+  }
+  .form-row input,
+  .form-row select,
+  .form-row textarea {
+    width: 100%;
+    background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.15);
+    color: var(--off-white); font-family: 'DM Sans', sans-serif;
+    font-size: 15px; padding: 12px 0;
+    outline: none; transition: border-color 0.3s;
+    appearance: none;
+  }
+  .form-row select { cursor: none; }
+  .form-row select option { background: var(--black); }
+  .form-row input:focus,
+  .form-row select:focus,
+  .form-row textarea:focus { border-bottom-color: var(--lime); }
+  .form-row textarea { resize: none; height: 100px; }
+  .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .form-submit {
+    width: 100%; background: var(--lime); color: var(--black);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase;
+    padding: 20px; border: none; margin-top: 16px;
+    cursor: none; transition: background 0.3s, transform 0.2s;
+  }
+  .form-submit:hover { background: #d6ff00; transform: translateY(-2px); }
+  .form-success {
+    display: none; text-align: center; padding: 40px 0;
+  }
+  .form-success-icon {
+    font-size: 48px; margin-bottom: 20px;
+  }
+  .form-success-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: var(--lime); font-style: italic;
+    margin-bottom: 12px;
+  }
+  .form-success-sub { font-size: 14px; color: var(--gray); }
+
+  /* FOOTER */
+  footer {
+    background: var(--black); border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 80px 60px 40px;
+  }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 40px;
+  }
+  .footer-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 40px; letter-spacing: 0.1em; color: var(--off-white);
+  }
+  .footer-logo span { color: var(--lime); }
+  .footer-tagline { font-size: 13px; color: var(--gray); margin-top: 8px; }
+  .footer-links { display: flex; gap: 80px; }
+  .footer-col h4 {
+    font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--lime); margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul li a {
+    font-size: 13px; color: var(--gray); text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-col ul li a:hover { color: var(--off-white); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-copy { font-size: 12px; color: rgba(255,255,255,0.2); }
+  .footer-website { font-size: 12px; color: var(--lime); text-decoration: none; }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s, transform 0.8s cubic-bezier(0.23,1,0.32,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes stripeUp {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.1); }
+  }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 20px 24px; }
+    nav.scrolled { padding: 14px 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; min-height: 100svh; }
+    .hero-left { padding: 120px 24px 60px; justify-content: flex-start; }
+    .hero-right { height: 300px; }
+    .section { padding: 80px 24px; }
+    .about-grid { grid-template-columns: 1fr; gap: 60px; }
+    .services-section { padding: 80px 24px; }
+    .services-header { flex-direction: column; gap: 24px; }
+    .services-intro { text-align: left; max-width: 100%; }
+    .markets-section { padding: 80px 24px; }
+    .markets-grid { grid-template-columns: 1fr; }
+    .testi-section { padding: 80px 24px; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .form-section { padding: 80px 24px; }
+    .form-grid { grid-template-columns: 1fr; gap: 60px; }
+    .form-grid-2 { grid-template-columns: 1fr; }
+    footer { padding: 60px 24px 30px; }
+    .footer-top { flex-direction: column; gap: 40px; }
+    .footer-links { flex-direction: column; gap: 40px; }
+    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo">SY<span>.</span>STEMATICA</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#markets">Markets</a></li>
+    <li><a href="#testimonials">Clients</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get In Touch</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-left">
+    <div class="hero-badge">Dubai, UAE — Global Reach</div>
+    <h1 class="hero-title">
+      Engineering<br>
+      <em>Extraordinary</em><br>
+      Events
+    </h1>
+    <p class="hero-sub">Full-service event management combining strategy, design, technology, and flawless execution to elevate events into unforgettable moments.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Start Your Event</a>
+      <a href="#services" class="btn-ghost">Our Services</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-grid-pattern"></div>
+    <div class="hero-stripes">
+      <div class="hero-stripe"></div>
+      <div class="hero-stripe"></div>
+      <div class="hero-stripe"></div>
+      <div class="hero-stripe"></div>
+      <div class="hero-stripe"></div>
+      <div class="hero-stripe"></div>
+      <div class="hero-stripe"></div>
+    </div>
+    <div class="hero-stat-box">
+      <div class="hero-stat-num">100%</div>
+      <div class="hero-stat-label">Delivery on promise</div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <div class="marquee-item">Event Management <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Stage Production <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Brand Activations <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Gala Dinners <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Concerts & Live Entertainment <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Corporate Conferences <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Exhibitions & Shows <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Event Management <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Stage Production <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Brand Activations <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Gala Dinners <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Concerts & Live Entertainment <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Corporate Conferences <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Exhibitions & Shows <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="about-grid">
+    <div class="reveal">
+      <div class="section-label">Who We Are</div>
+      <h2 class="about-title">Experience<br><em>Architects</em><br>Not Planners</h2>
+      <p class="about-text">Systematica is a full-service event management company dedicated to transforming ideas into extraordinary experiences. We don't just manage events—we design journeys.</p>
+      <p class="about-text">With a strong foundation in systems and logistics, our in-house teams cover everything from creative concept development and stage production to on-site management, event registration, and ticketing solutions.</p>
+    </div>
+    <div class="reveal">
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon">⚡</div>
+          <div class="value-name">Innovation</div>
+          <div class="value-desc">Pushing creative boundaries and embracing new technologies to craft unique, unforgettable experiences.</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">✦</div>
+          <div class="value-name">Creativity</div>
+          <div class="value-desc">Transforming ideas into artful experiences, blending aesthetics, technology, and storytelling.</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">◎</div>
+          <div class="value-name">Sustainability</div>
+          <div class="value-desc">Eco-conscious practices from materials to logistics—events that leave a positive impact.</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">◈</div>
+          <div class="value-name">Precision</div>
+          <div class="value-desc">Every timeline, every technical detail, every vision executed with meticulous professionalism.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-section" id="services">
+  <div class="services-header reveal">
+    <div>
+      <div class="section-label">What We Do</div>
+      <h2 class="services-title">Comprehensive Event Solutions</h2>
+    </div>
+    <p class="services-intro">Under one roof, we provide everything needed to bring your vision to life through professional planning and cutting-edge production.</p>
+  </div>
+  <div class="services-list">
+    <div class="service-row reveal">
+      <div class="service-num">01</div>
+      <div class="service-name">Event Management</div>
+      <div class="service-desc">End-to-end planning, logistics, and on-site coordination for seamless execution.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">02</div>
+      <div class="service-name">Event Design</div>
+      <div class="service-desc">Creative concept development, spatial design, and immersive environment creation.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">03</div>
+      <div class="service-name">Event Production</div>
+      <div class="service-desc">Stage builds, technical production, audio-visual, and live streaming solutions.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">04</div>
+      <div class="service-name">Branding & Activations</div>
+      <div class="service-desc">Brand storytelling, product launches, and immersive brand experience design.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">05</div>
+      <div class="service-name">Concerts & Live Entertainment</div>
+      <div class="service-desc">Large-scale concerts, live performances, and entertainment event management.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">06</div>
+      <div class="service-name">Exhibitions & Trade Shows</div>
+      <div class="service-desc">Booth design, visitor experience, and full exhibition management services.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">07</div>
+      <div class="service-name">Registration & Ticketing</div>
+      <div class="service-desc">Smart event technology solutions for guest management and ticketing platforms.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+    <div class="service-row reveal">
+      <div class="service-num">08</div>
+      <div class="service-name">Unique Giveaways</div>
+      <div class="service-desc">Bespoke branded merchandise and memorable takeaways for every event.</div>
+      <div class="service-arrow">↗</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETS -->
+<section class="markets-section" id="markets">
+  <div class="section-label reveal">Target Markets</div>
+  <h2 class="about-title reveal" style="margin-bottom: 0;">Industries We<br><em>Serve</em></h2>
+  <div class="markets-grid">
+    <div class="market-card reveal" data-num="01">
+      <div class="market-icon-wrap">🏢</div>
+      <div class="market-name">Corporate & Business</div>
+      <div class="market-desc">Conferences, summits, AGMs, product launches, and executive retreats for leading organizations.</div>
+    </div>
+    <div class="market-card reveal" data-num="02">
+      <div class="market-icon-wrap">🏛️</div>
+      <div class="market-name">Government & Public Sector</div>
+      <div class="market-desc">High-protocol events, national celebrations, and public-sector gatherings with precision.</div>
+    </div>
+    <div class="market-card reveal" data-num="03">
+      <div class="market-icon-wrap">🎵</div>
+      <div class="market-name">Entertainment & Live Events</div>
+      <div class="market-desc">Concerts, festivals, award shows, and live entertainment experiences at scale.</div>
+    </div>
+    <div class="market-card reveal" data-num="04">
+      <div class="market-icon-wrap">🎪</div>
+      <div class="market-name">Exhibitions & Trade Shows</div>
+      <div class="market-desc">World-class exhibition design and management for industry showcases and expos.</div>
+    </div>
+    <div class="market-card reveal" data-num="05">
+      <div class="market-icon-wrap">✦</div>
+      <div class="market-name">Hospitality & Luxury Brands</div>
+      <div class="market-desc">Gala dinners, brand activations, and luxury experiences for premium clientele.</div>
+    </div>
+    <div class="market-card reveal" data-num="06">
+      <div class="market-icon-wrap">✈️</div>
+      <div class="market-name">Travel Agencies</div>
+      <div class="market-desc">Destination events, travel showcases, and curated experiences for travel brands.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-section" id="testimonials">
+  <div class="section-label reveal">Client Stories</div>
+  <h2 class="about-title reveal" style="color: var(--off-white); margin-bottom: 0;">Proven<br><em>Success</em></h2>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-accent">"</div>
+      <p class="testi-quote">Systematica transformed our event into an experience that left a lasting impression on our audience. Their innovative approach and attention to detail made our gala dinner a resounding success.</p>
+      <div class="testi-client">U.S. Soy — Gala Dinner</div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-accent">"</div>
+      <p class="testi-quote">In my 20 years in the industry, this is the first agency that delivered exactly what was promised in the renders. Creativity, precision, and professionalism at every step.</p>
+      <div class="testi-client">Marriott — Corporate Conference</div>
+    </div>
+  </div>
+</section>
+
+<!-- LEAD FORM -->
+<section class="form-section" id="contact">
+  <div class="form-grid">
+    <div class="form-left reveal">
+      <div class="section-label">Get In Touch</div>
+      <h2 class="form-title">Let's Build Something<br>Extraordinary</h2>
+      <p class="form-subtitle">Ready to elevate your next event? Share your vision and we'll craft an experience that exceeds every expectation.</p>
+      <div class="contact-info">
+        <div class="contact-item">
+          <div>
+            <strong>Phone</strong>
+            +971 55 1422 799
+          </div>
+        </div>
+        <div class="contact-item">
+          <div>
+            <strong>Email</strong>
+            eventssystematica@gmail.com
+          </div>
+        </div>
+        <div class="contact-item">
+          <div>
+            <strong>Address</strong>
+            Al Manzel, Karama, Dubai, U.A.E.
+          </div>
+        </div>
+        <div class="contact-item">
+          <div>
+            <strong>Website</strong>
+            www.systematicaevents.com
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-right reveal">
+      <div class="form-box">
+        <div id="formContainer">
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label>First Name</label>
+              <input type="text" id="fname" placeholder="Your name">
+            </div>
+            <div class="form-row">
+              <label>Last Name</label>
+              <input type="text" id="lname" placeholder="Your surname">
+            </div>
+          </div>
+          <div class="form-row">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="your@email.com">
+          </div>
+          <div class="form-row">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="+971 XX XXX XXXX">
+          </div>
+          <div class="form-row">
+            <label>Event Type</label>
+            <select id="eventType">
+              <option value="" disabled selected>Select event category</option>
+              <option>Corporate Conference / Summit</option>
+              <option>Gala Dinner / Awards Ceremony</option>
+              <option>Concert / Live Entertainment</option>
+              <option>Product Launch / Brand Activation</option>
+              <option>Exhibition / Trade Show</option>
+              <option>Government / Public Sector Event</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Estimated Budget (AED)</label>
+            <select id="budget">
+              <option value="" disabled selected>Select budget range</option>
+              <option>Under 50,000</option>
+              <option>50,000 – 200,000</option>
+              <option>200,000 – 500,000</option>
+              <option>500,000 – 1,000,000</option>
+              <option>1,000,000+</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Tell Us About Your Event</label>
+            <textarea id="message" placeholder="Date, location, expected attendees, and any specific requirements..."></textarea>
+          </div>
+          <button class="form-submit" onclick="submitForm()">Submit Enquiry →</button>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <div class="form-success-icon">✓</div>
+          <div class="form-success-text">Enquiry Received</div>
+          <div class="form-success-sub">Our team will reach out within 24 hours to discuss your event vision.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo">SY<span>.</span>STEMATICA</div>
+      <div class="footer-tagline">Engineering Extraordinary Events</div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#services">Event Management</a></li>
+          <li><a href="#services">Event Design</a></li>
+          <li><a href="#services">Event Production</a></li>
+          <li><a href="#services">Branding</a></li>
+          <li><a href="#services">Concerts & Entertainment</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#markets">Markets</a></li>
+          <li><a href="#testimonials">Case Studies</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+971551422799">+971 55 1422 799</a></li>
+          <li><a href="mailto:eventssystematica@gmail.com">eventssystematica@gmail.com</a></li>
+          <li><a href="#">Karama, Dubai, UAE</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2025 Systematica Events. All rights reserved.</div>
+    <a href="http://www.systematicaevents.com" class="footer-website" target="_blank">systematicaevents.com ↗</a>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+  });
+  function animateRing() {
+    rx += (mx - rx - 20) * 0.12;
+    ry += (my - ry - 20) * 0.12;
+    ring.style.transform = `translate(${rx}px, ${ry}px)`;
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a, button, .service-row, .value-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform += ' scale(2)'; ring.style.opacity = '1'; });
+    el.addEventListener('mouseleave', () => { ring.style.opacity = '0.5'; });
+  });
+
+  // Navbar scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 80);
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Form submit
+  function submitForm() {
+    const req = ['fname','email','eventType'];
+    let valid = true;
+    req.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.style.borderBottomColor = '#ff4444'; valid = false; }
+      else { el.style.borderBottomColor = ''; }
+    });
+    if (!valid) return;
+    document.getElementById('formContainer').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+  }
+</script>
+</body>
+</html>
